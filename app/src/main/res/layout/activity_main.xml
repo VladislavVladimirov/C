@@ -4,22 +4,33 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background ="@color/white"
-    tools:context=".ui.MainActivity">
+    android:background="@color/white"
+    tools:context=".ui.AppActivity">
+
+    <TextView
+        android:id="@+id/label"
+        android:textSize="24sp"
+        android:textColor="@color/black"
+        android:layout_margin="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+       app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <ru.netology.statsview.ui.StatsView
         android:id="@+id/statsView"
         android:layout_width="300dp"
         android:layout_height="300dp"
-        app:textSize="50sp"
-        app:lineWidth="24dp"
-        app:color1="#391279"
-        app:color2="#939124"
-        app:color3="#187957"
-        app:color4="#582012"
+        app:color1="#FFB74D"
+        app:color2="#EA0653"
+        app:color3="#05CF88"
+        app:color4="#0020E1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:lineWidth="16dp"
+        app:textSize="36sp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,5 +1,8 @@
 package ru.netology.statsview.ui
 
+import android.animation.ValueAnimator
+import android.animation.ValueAnimator.INFINITE
+import android.animation.ValueAnimator.RESTART
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -7,6 +10,7 @@ import android.graphics.PointF
 import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.View
+import android.view.animation.LinearInterpolator
 import androidx.core.content.withStyledAttributes
 import ru.netology.statsview.R
 import ru.netology.statsview.utils.AndroidUtils
@@ -27,14 +31,16 @@ class StatsView @JvmOverloads constructor(
     var data: List<Float> = emptyList()
         set(value) {
             field = value
-            invalidate()
+            update()
         }
     private var radius = 0F
-    private var center = PointF(0F,0F)
+    private var progress = 0F
+    private var rotationProgress = 0F
+    private var valueAnimator: ValueAnimator? = null
+    private var center = PointF(0F, 0F)
     private var lineWidth = AndroidUtils.dp(context, 5)
     private var colors = emptyList<Int>()
-    private var oval = RectF(0F,0F,0F,0F)
-
+    private var oval = RectF(0F, 0F, 0F, 0F)
     private var textSize = AndroidUtils.dp(context, 20).toFloat()
 
 
@@ -91,24 +97,52 @@ class StatsView @JvmOverloads constructor(
         val sum = data.sum()
         data.forEachIndexed { index, datum ->
             val angle = (datum / sum) * 360F
-            paint.color = colors.getOrElse(index) { generateRandomColor() }
+            paint.color = colors.getOrNull(index) ?: generateRandomColor()
 
-            canvas.drawArc(oval, startAngle, angle, false, paint)
+            canvas.drawArc(oval, startAngle + rotationProgress, angle * progress, false, paint)
             startAngle += angle
-            canvas.drawText(
-                "%.2f%%".format(100F),
-                center.x,
-                center.y + textPaint.textSize / 4,
-                textPaint
-            )
+
         }
+        canvas.drawText(
+            "%.2f%%".format(100F),
+            center.x,
+            center.y + textPaint.textSize / 4,
+            textPaint
+        )
         val customEnd = 1F
         paint.color = colors.getOrElse(0) { generateRandomColor() }
-        canvas.drawArc(oval, startAngle, customEnd, false, paint)
-
-
+        canvas.drawArc(oval, startAngle + rotationProgress, customEnd, false, paint)
     }
 
     private fun generateRandomColor() = Random.nextInt(0xFF000000.toInt(), 0xFFFFFFFF.toInt())
+    private fun update() {
+        valueAnimator?.let {
+            it.removeAllListeners()
+            it.cancel()
+        }
+        progress = 0F
+        valueAnimator = ValueAnimator.ofFloat(0F, 360F).apply {
+            addUpdateListener { anim ->
+                rotationProgress = anim.animatedValue as Float
+                invalidate()
+            }
+            duration = 2000
+            repeatMode = RESTART
+            repeatCount = INFINITE
+            interpolator = LinearInterpolator()
+        }.also { it.start() }
+        valueAnimator = ValueAnimator.ofFloat(0F, 1F).apply {
+            addUpdateListener { anim ->
+                progress = anim.animatedValue as Float
+                invalidate()
+            }
+            duration = 2000
+            repeatMode = RESTART
+            repeatCount = INFINITE
+            interpolator = LinearInterpolator()
+        }.also {
+            it.start()
+        }
+    }
 }
 
